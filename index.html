@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>原神启动</title>
+  <link rel="stylesheet" href="./assets/index-BbJilfUv.css">
+  <style>
+    /* 基础样式 - 仅作为备用，防止CSS加载失败 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'HYWenHei', 'Microsoft YaHei', sans-serif;
+      background: #000;
+      color: #fff;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    #root {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+    }
+    
+    .fallback-message {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(200, 0, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="fallback-message" id="fallbackMessage"></div>
+  <div id="root">
+    <div class="particles" id="particles"></div>
+    <svg class="logo" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="512" cy="512" r="512" fill="#2D6CC0"/>
+      <path d="M704 384H320c-17.7 0-32 14.3-32 32v320c0 17.7 14.3 32 32 32h384c17.7 0 32-14.3 32-32V416c0-17.7-14.3-32-32-32z" fill="#fff"/>
+      <path d="M512 672c-53 0-96-43-96-96s43-96 96-96 96 43 96 96-43 96-96 96z" fill="#2D6CC0"/>
+      <path d="M576 576c0 35.3-28.7 64-64 64s-64-28.7-64-64 28.7-64 64-64 64 28.7 64 64z" fill="#fff"/>
+    </svg>
+    <h1 class="logo-text">原神启动</h1>
+    <p class="subtitle">TEAM.x.y.z 呈现</p>
+    <div class="loading-bar-container">
+      <div class="loading-bar" id="loadingBar"></div>
+    </div>
+    <button class="start-button" id="startButton">开始游戏</button>
+  </div>
+
+  <script src="./assets/index-YvIIhg7k.js"></script>
+  <script>
+    // 资源加载错误处理
+    window.addEventListener('error', function(e) {
+      const fallbackMessage = document.getElementById('fallbackMessage');
+      
+      // 检查是否是资源加载错误
+      if (e.target && (e.target.tagName === 'LINK' || e.target.tagName === 'SCRIPT')) {
+        fallbackMessage.textContent = '部分资源加载失败，使用备用方案';
+        fallbackMessage.style.display = 'block';
+        
+        setTimeout(() => {
+          fallbackMessage.style.display = 'none';
+        }, 5000);
+        
+        // 如果是CSS加载失败，添加一些基本样式
+        if (e.target.tagName === 'LINK' && e.target.rel === 'stylesheet') {
+          document.head.innerHTML += `
+            <style>
+              .logo {
+                width: 300px;
+                margin-bottom: 40px;
+                opacity: 0;
+                animation: fadeIn 2s forwards 1s;
+              }
+              
+              .logo-text {
+                font-size: 3.5rem;
+                font-weight: bold;
+                color: #f8d165;
+                text-shadow: 0 0 10px rgba(248, 209, 101, 0.5);
+                margin-bottom: 20px;
+                letter-spacing: 5px;
+                opacity: 0;
+                animation: fadeIn 1.5s forwards 2s;
+              }
+              
+              .start-button {
+                background: linear-gradient(to bottom, #5e7eff, #3d5af1);
+                color: white;
+                border: none;
+                padding: 15px 50px;
+                font-size: 1.5rem;
+                border-radius: 50px;
+                cursor: pointer;
+                margin-top: 30px;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: fadeInUp 1s forwards 3s;
+                box-shadow: 0 5px 15px rgba(61, 90, 241, 0.3);
+                transition: all 0.3s ease;
+              }
+              
+              .start-button:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 25px rgba(61, 90, 241, 0.5);
+              }
+              
+              .loading-bar-container {
+                width: 300px;
+                height: 6px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 3px;
+                overflow: hidden;
+                margin-top: 20px;
+                opacity: 0;
+                animation: fadeIn 1s forwards 2.5s;
+              }
+              
+              .loading-bar {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(to right, #5e7eff, #3d5af1);
+                border-radius: 3px;
+                transition: width 0.5s ease;
+              }
+              
+              .particles {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: -1;
+              }
+              
+              .particle {
+                position: absolute;
+                background: rgba(94, 126, 255, 0.5);
+                border-radius: 50%;
+                opacity: 0;
+              }
+              
+              .subtitle {
+                font-size: 1.2rem;
+                color: #ccc;
+                margin-top: 10px;
+                opacity: 0;
+                animation: fadeIn 1.5s forwards 2.5s;
+              }
+              
+              @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+              }
+              
+              @keyframes fadeInUp {
+                from { 
+                  opacity: 0;
+                  transform: translateY(20px);
+                }
+                to { 
+                  opacity: 1;
+                  transform: translateY(0);
+                }
+              }
+              
+              @media (max-width: 768px) {
+                .logo {
+                  width: 200px;
+                }
+                
+                .logo-text {
+                  font-size: 2.5rem;
+                }
+                
+                .start-button {
+                  padding: 12px 40px;
+                  font-size: 1.2rem;
+                }
+                
+                .loading-bar-container {
+                  width: 250px;
+                }
+              }
+            </style>
+          `;
+        }
+        
+        // 如果是JS加载失败，添加基本功能
+        if (e.target.tagName === 'SCRIPT') {
+          // 创建粒子效果
+          function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+            
+            for (let i = 0; i < particleCount; i++) {
+              const particle = document.createElement('div');
+              particle.classList.add('particle');
+              
+              const size = Math.random() * 5 + 2;
+              particle.style.width = `${size}px`;
+              particle.style.height = `${size}px`;
+              
+              const posX = Math.random() * 100;
+              const posY = Math.random() * 100;
+              particle.style.left = `${posX}%`;
+              particle.style.top = `${posY}%`;
+              
+              const animationDuration = Math.random() * 5 + 5;
+              particle.style.animation = `
+                float ${animationDuration}s infinite ease-in-out,
+                fadeInOut ${animationDuration}s infinite ease-in-out
+              `;
+              
+              particle.style.animationDelay = `${Math.random() * 5}s`;
+              
+              particlesContainer.appendChild(particle);
+            }
+            
+            // 添加粒子动画样式
+            const style = document.createElement('style');
+            style.textContent = `
+              @keyframes float {
+                0%, 100% { transform: translate(0, 0); }
+                25% { transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px); }
+                50% { transform: translate(${Math.random() * 30 - 15}px, ${Math.random() * 30 - 15}px); }
+                75% { transform: translate(${Math.random() * 20 - 10}px, ${Math.random() * 20 - 10}px); }
+              }
+              
+              @keyframes fadeInOut {
+                0%, 100% { opacity: 0; }
+                50% { opacity: 0.7; }
+              }
+            `;
+            document.head.appendChild(style);
+          }
+          
+          function simulateLoading() {
+            const loadingBar = document.getElementById('loadingBar');
+            let width = 0;
+            
+            const interval = setInterval(() => {
+              if (width >= 100) {
+                clearInterval(interval);
+                document.getElementById('startButton').style.opacity = 1;
+                document.getElementById('startButton').style.transform = 'translateY(0)';
+                return;
+              }
+              
+              width += Math.random() * 5;
+              if (width > 100) width = 100;
+              loadingBar.style.width = `${width}%`;
+            }, 200);
+          }
+          
+          function startGame() {
+            const root = document.getElementById('root');
+            root.innerHTML = '';
+            root.style.background = '#000';
+            
+            const message = document.createElement('div');
+            message.style.color = '#fff';
+            message.style.fontSize = '2rem';
+            message.style.textAlign = 'center';
+            message.style.padding = '2rem';
+            message.innerHTML = '游戏启动中...<br><span style="font-size: 1rem; color: #aaa;">(这是一个演示页面)</span>';
+            
+            root.appendChild(message);
+          }
+          
+          // 初始化功能
+          document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            simulateLoading();
+            
+            document.getElementById('startButton').addEventListener('click', function() {
+              startGame();
+            });
+          });
+        }
+      }
+    }, true);
+  </script>
+</body>
+</html>
